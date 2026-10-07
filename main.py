@@ -23,7 +23,7 @@ def run_web_server():
 threading.Thread(target=run_web_server, daemon=True).start()
 
 # --- 2. КОД TELEGRAM БОТА ---
-TELEGRAM_TOKEN = "ВСТАВЬ_СЮДА_ТОКЕН_ТЕЛЕГРАМ".strip()
+TELEGRAM_TOKEN = "8928700628:AAGke_1cUOs21pKmKtjqbItgPc_mpFNn2_8".strip()
 bot = telebot.TeleBot(TELEGRAM_TOKEN)
 
 user_urls = {}
