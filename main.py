@@ -131,7 +131,9 @@ def process_download(call):
             "📤 Отправка файла в чат...",
             chat_id=chat_id,
             message_id=call.message.message_id,
-        )n(file_path, "rb") as file:
+        )
+
+        with open(file_path, "rb") as file:
             if mode == "dl_audio":
                 bot.send_audio(
                     chat_id, file, title=title, caption=f"🎵 {title[:50]}"
