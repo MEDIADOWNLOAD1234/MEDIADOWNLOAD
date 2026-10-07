@@ -43,7 +43,7 @@ threading.Thread(target=run_web_server, daemon=True).start()
 
 # --- 2. ПОЛУЧЕНИЕ ТОКЕНА ---
 # Закодируйте ваш новый токен из BotFather на сайте base64encode.org и вставьте сюда:
-ENCODED_TOKEN = "ODkyODcwMDYyODpBQUdwbFdhTHpoRVNVQmxjbjFmMlNMdG40aW9oZm5lZS1vOA=="
+ENCODED_TOKEN = "ݼM:   OnTH78Bϯ y ӊ"
 
 try:
     DECODED_TOKEN = base64.b64decode(ENCODED_TOKEN).decode('utf-8').strip()
