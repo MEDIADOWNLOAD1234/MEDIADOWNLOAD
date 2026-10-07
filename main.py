@@ -168,6 +168,6 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"Ошибка при удалении вебхука: {e}")
     time.sleep(1)
-    bot.infinity_polling(timeout=20, long_polling_timeout=5) ope
+    bot.infinity_polling(timeout=20, long_polling_timeout=5)
 
         with
