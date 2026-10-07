@@ -1,4 +1,23 @@
 import os
+import threading
+from http.server import HTTPServer, BaseHTTPRequestHandler
+
+# Простой веб-сервер для обработки запросов UptimeRobot
+class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.send_header("Content-type", "text/html")
+        self.end_headers()
+        self.wfile.write(b"OK")
+
+def run_web_server():
+    port = int(os.environ.get("PORT", 8080))
+    server = HTTPServer(("0.0.0.0", port), SimpleHTTPRequestHandler)
+    server.serve_forever()
+
+# Запускаем сервер параллельно с ботом
+threading.Thread(target=run_web_server, daemon=True).start()  
+
 import time
 import threading
 import base64
