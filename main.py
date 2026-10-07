@@ -126,7 +126,7 @@ def process_download(call):
             file_path = f"downloads/{chat_id}_{file_id}.{ext}"
 
             if not os.path.exists(file_path):file_path = ydl.prepare_filename(info)
-                if mode == "dl_audio":
+            if mode == "dl_audio":
                     file_path = os.path.splitext(file_path)[0] + ".mp3"
 
         bot.edit_message_text(
