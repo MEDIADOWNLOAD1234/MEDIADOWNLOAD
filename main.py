@@ -6,7 +6,7 @@ import telebot
 from telebot.types import InlineKeyboardButton, InlineKeyboardMarkup
 import yt_dlp
 
-# --- 1. ВЕБ-СЕРВЕР ДЛЯ FREE ТАРИФА RENDER ---
+# --- 1. ФЕЙКОВЫЙ ВЕБ-СЕРВЕР ДЛЯ FREE ТАРИФА RENDER ---
 class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         self.send_response(200)
@@ -22,8 +22,15 @@ def run_web_server():
 # Запускаем веб-сервер в фоновом потоке
 threading.Thread(target=run_web_server, daemon=True).start()
 
-# --- 2. ПОЛУЧЕНИЕ ТОКЕНА ИЗ ПЕРЕМЕННЫХ ОКТУЖЕНИЯ ---
+# --- 2. ПОЛУЧЕНИЕ И ПРОВЕРКА ТОКЕНА ---
 TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN", "").strip()
+
+print(f"DEBUG: TELEGRAM_TOKEN length is {len(TELEGRAM_TOKEN)}")
+if TELEGRAM_TOKEN:
+    print(f"DEBUG: Token starts with: {TELEGRAM_TOKEN[:5]}...")
+else:
+    print("DEBUG: TELEGRAM_TOKEN IS EMPTY! Проверьте переменные окружения на Render.")
+
 bot = telebot.TeleBot(TELEGRAM_TOKEN)
 
 user_urls = {}
@@ -121,15 +128,15 @@ def process_download(call):
         bot.edit_message_text(
             "📤 Отправка файла в чат...",
             chat_id=chat_id,
-            message_id=call.message.message_id,
-        )
+            message_id=call.message.message_id,)
 
         with open(file_path, "rb") as file:
             if mode == "dl_audio":
                 bot.send_audio(
                     chat_id, file, title=title, caption=f"🎵 {title[:50]}"
                 )
-            else:bot.send_video(
+            else:
+                bot.send_video(
                     chat_id,
                     file,
                     caption=f"🎬 {title[:50]}",
