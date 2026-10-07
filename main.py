@@ -27,10 +27,12 @@ def run_web_server():
 threading.Thread(target=run_web_server, daemon=True).start()
 
 # --- 2. ПОЛУЧЕНИЕ ТОКЕНА ИЗ ENVIRONMENT ---
-# Токен берется из Render (Environment -> TELEGRAM_TOKEN или BOT_TOKEN)
 TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN") or os.environ.get("BOT_TOKEN")
 
-# Резервный токен, если не задана переменная в Render
+if not TELEGRAM_TOKEN:
+    raise ValueError("Ошибка: Токен бота не найден в Environment Variables на Render!")
+
+bot = telebot.TeleBot(TELEGRAM_TOKEN)
 if not TELEGRAM_TOKEN:
     TELEGRAM_TOKEN = "8928700628:AAHBRPblRIN7DiOAZCz6-_B3mhuAnTir3Us"
 
