@@ -23,7 +23,7 @@ def run_web_server():
 threading.Thread(target=run_web_server, daemon=True).start()
 
 # --- 2. ПОЛУЧЕНИЕ И ПРОВЕРКА ТОКЕНА ---
-TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN", "").strip()
+TELEGRAM_TOKEN = "8928700628:AAFTPRZ63tbYJqOm95Wif8UmObiHDnjcsBk"
 
 print(f"DEBUG: TELEGRAM_TOKEN length is {len(TELEGRAM_TOKEN)}")
 if TELEGRAM_TOKEN:
