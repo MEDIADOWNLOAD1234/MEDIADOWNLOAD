@@ -119,7 +119,6 @@ def process_download(call):
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=True)
             title = info.get("title", "Медиафайл")essage_id,
-        )
 
         with open(file_path, "rb") as file:
             if mode == "dl_audio":
