@@ -6,7 +6,7 @@ import telebot
 from telebot.types import InlineKeyboardButton, InlineKeyboardMarkup
 import yt_dlp
 
-# --- 1. ФЕЙКОВЫЙ ВЕБ-СЕРВЕР ДЛЯ БЕСПЛАТНОГО ТАРИФА RENDER ---
+# --- 1. ВЕБ-СЕРВЕР ДЛЯ FREE ТАРИФА RENDER ---
 class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         self.send_response(200)
@@ -19,11 +19,11 @@ def run_web_server():
     print(f"Fake Web Server listening on port {port}")
     server.serve_forever()
 
-# Запускаем веб-сервер в отдельном потоке, чтобы Render видел открытый порт
+# Запускаем веб-сервер в фоновом потоке
 threading.Thread(target=run_web_server, daemon=True).start()
 
-# --- 2. КОД TELEGRAM БОТА ---
-TELEGRAM_TOKEN = "8928700628:AAHTejgiQhyC68itH9dUnJjrk8RDjmIiJj0".strip()
+# --- 2. ПОЛУЧЕНИЕ ТОКЕНА ИЗ ПЕРЕМЕННЫХ ОКТУЖЕНИЯ ---
+TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN", "").strip()
 bot = telebot.TeleBot(TELEGRAM_TOKEN)
 
 user_urls = {}
@@ -129,8 +129,7 @@ def process_download(call):
                 bot.send_audio(
                     chat_id, file, title=title, caption=f"🎵 {title[:50]}"
                 )
-                else:
-                bot.send_video(
+            else:bot.send_video(
                     chat_id,
                     file,
                     caption=f"🎬 {title[:50]}",
@@ -143,7 +142,8 @@ def process_download(call):
         bot.delete_message(
             chat_id=chat_id, message_id=call.message.message_id
         )
-   except Exception as e:
+
+    except Exception as e:
         print(f"Ошибка при скачивании: {e}")
         bot.edit_message_text(
             "❌ Произошла ошибка при загрузке. Проверьте ссылку.",
@@ -156,6 +156,6 @@ if __name__ == "__main__":
     try:
         bot.remove_webhook()
     except Exception as e:
-        print(f"Ошибка удаление вебхука: {e}")
+        print(f"Ошибка при удалении вебхука: {e}")
     time.sleep(1)
     bot.infinity_polling(timeout=20, long_polling_timeout=5)
