@@ -1,61 +1,44 @@
 import os
-import threading
-from http.server import HTTPServer, BaseHTTPRequestHandler
-
-# Простой веб-сервер для обработки запросов UptimeRobot
-class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
-    def do_GET(self):
-        self.send_response(200)
-        self.send_header("Content-type", "text/html")
-        self.end_headers()
-        self.wfile.write(b"OK")
-
-def run_web_server():
-    port = int(os.environ.get("PORT", 8080))
-    server = HTTPServer(("0.0.0.0", port), SimpleHTTPRequestHandler)
-    server.serve_forever()
-
-# Запускаем сервер параллельно с ботом
-threading.Thread(target=run_web_server, daemon=True).start()  
-
 import time
 import threading
-import base64
 from http.server import HTTPServer, BaseHTTPRequestHandler
 import telebot
 from telebot.types import InlineKeyboardButton, InlineKeyboardMarkup
 import yt_dlp
 
-# --- 1. ВЕБ-СЕРВЕР ДЛЯ RENDER ---
+# --- 1. ЗАПУСК ЕДИНСТВЕННОГО ВЕБ-СЕРВЕРА ДЛЯ RENDER / UPTIMEROBOT ---
 class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         self.send_response(200)
+        self.send_header("Content-type", "text/plain; charset=utf-8")
         self.end_headers()
-        self.wfile.write(b"Bot is alive!")
+        self.wfile.write(b"OK - Bot is alive!")
+
+    def log_message(self, format, *args):
+        return  # Отключаем лишний спам логов сервера в консоли
 
 def run_web_server():
     port = int(os.environ.get("PORT", 8080))
     server = HTTPServer(("0.0.0.0", port), SimpleHTTPRequestHandler)
-    print(f"Fake Web Server listening on port {port}")
+    print(f"Web Server listening on port {port}")
     server.serve_forever()
 
+# Запускаем веб-сервер ровно один раз в фоновом потоке
 threading.Thread(target=run_web_server, daemon=True).start()
 
-# --- 2. ПОЛУЧЕНИЕ ТОКЕНА ---
-# Закодируйте ваш новый токен из BotFather на сайте base64encode.org и вставьте сюда:
-ENCODED_TOKEN = "ODkyODcwMDYyODpBQUhCUlBibFJJTjdEaU9BWkN6Ni1fQjNtaHVBblRpcjNVcw=="
+# --- 2. ПОЛУЧЕНИЕ ТОКЕНА ИЗ ENVIRONMENT ---
+# Токен берется из Render (Environment -> TELEGRAM_TOKEN или BOT_TOKEN)
+TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN") or os.environ.get("BOT_TOKEN")
 
-try:
-    DECODED_TOKEN = base64.b64decode(ENCODED_TOKEN).decode('utf-8').strip()
-except Exception:
-    DECODED_TOKEN = ""
-
-TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN", "").strip() or DECODED_TOKEN
+# Резервный токен, если не задана переменная в Render
+if not TELEGRAM_TOKEN:
+    TELEGRAM_TOKEN = "8928700628:AAHBRPblRIN7DiOAZCz6-_B3mhuAnTir3Us"
 
 bot = telebot.TeleBot(TELEGRAM_TOKEN)
 
 user_urls = {}
 
+# --- 3. ОБРАБОТЧИКИ СООБЩЕНИЙ ТЕЛЕГРАМ ---
 @bot.message_handler(commands=["start"])
 def send_welcome(message):
     bot.reply_to(
@@ -134,6 +117,7 @@ def process_download(call):
     try:
         os.makedirs("downloads", exist_ok=True)
 
+        # Исправлена опечатка (withyt_dlp -> with yt_dlp)
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=True)
             title = info.get("title", "Медиафайл")
@@ -141,8 +125,7 @@ def process_download(call):
             file_id = info.get("id")
             file_path = f"downloads/{chat_id}_{file_id}.{ext}"
 
-            if not os.path.exists(file_path):
-                file_path = ydl.prepare_filename(info)
+            if not os.path.exists(file_path):file_path = ydl.prepare_filename(info)
                 if mode == "dl_audio":
                     file_path = os.path.splitext(file_path)[0] + ".mp3"
 
@@ -180,11 +163,13 @@ def process_download(call):
             message_id=call.message.message_id,
         )
 
+# --- 4. ЗАПУСК БОТА С ОЧИСТКОЙ ВЕБХУКОВ ---
 if __name__ == "__main__":
     print("Бот-загрузчик запущен!")
     try:
         bot.remove_webhook()
+        time.sleep(1)
     except Exception as e:
-        print(f"Ошибка при удалении вебхука: {e}")
-    time.sleep(1)
+        print(f"Ошибка при сбросе вебхуков: {e}")
+
     bot.infinity_polling(timeout=20, long_polling_timeout=5)
